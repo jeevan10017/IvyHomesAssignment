@@ -4,8 +4,7 @@ const fs = require('fs').promises;
 const BASE_URL = 'http://35.200.185.69:8000';
 const VERSIONS = ['v1', 'v2', 'v3'];
 const INITIAL_DELAY = 1000;
-const MAX_RETRY_DELAY = 100000;
-const RESULT_THRESHOLD = 10;
+const MAX_RETRY_DELAY = 60000;
 
 class VersionExtractor {
   constructor(version) {
@@ -15,6 +14,25 @@ class VersionExtractor {
     this.rateLimitedRequests = 0;
     this.allNames = new Set();
     this.startTime = Date.now();
+    this.requests = []; 
+
+    switch (version) {
+      case 'v1':
+        this.threshold = 10;
+        this.rateLimit = 100;
+        break;
+      case 'v2':
+        this.threshold = 12;
+        this.rateLimit = 50;
+        break;
+      case 'v3':
+        this.threshold = 15;
+        this.rateLimit = 80;
+        break;
+      default:
+        this.threshold = 15;
+        this.rateLimit = 100;
+    }
   }
 
   getParams(query) {
@@ -30,8 +48,24 @@ class VersionExtractor {
       case 'v1': return 'abcdefghijklmnopqrstuvwxyz0123456789';
       case 'v2': return 'abcdefghijklmnopqrstuvwxyz';
       case 'v3': return 'abcdefghijklmnopqrstuvwxyz0123456789 +-._';
-      default: return 'abcdefghijklmnopqrstuvwxyz0123456789';
+      default: return 'abcdefghijklmnopqrstuvwxyz';
     }
+  }
+
+  async waitForRateLimit() {
+    const now = Date.now();
+    this.requests = this.requests.filter(t => now - t <= 60000);
+
+    while (this.requests.length >= this.rateLimit) {
+      const oldest = this.requests[0];
+      const waitTime = 60000 - (now - oldest) + 1; 
+      console.log(`[${this.version}] Rate limit reached. Waiting ${waitTime}ms`);
+      await new Promise(resolve => setTimeout(resolve, waitTime));
+      const newNow = Date.now();
+      this.requests = this.requests.filter(t => newNow - t <= 60000);
+    }
+
+    this.requests.push(Date.now());
   }
 
   async queryAutocomplete(query, retryCount = 0) {
@@ -39,6 +73,8 @@ class VersionExtractor {
     this.totalAttempts++;
     
     try {
+      await this.waitForRateLimit();
+
       const timestamp = new Date().toISOString().substr(11, 8);
       console.log(`[${timestamp}][${this.version}] Attempt #${attemptNumber} (${retryCount > 0 ? `retry ${retryCount}` : 'initial'}): ${query}`);
 
@@ -71,13 +107,15 @@ class VersionExtractor {
 
   async explorePrefix(prefix) {
     const results = await this.queryAutocomplete(prefix);
+
+    results.forEach(name => this.allNames.add(name));
     
-    if (results.length >= RESULT_THRESHOLD) {
+    if (results.length >= this.threshold) {
       console.log(`[${this.version}] EXPANDING: ${prefix}*`);
       for (const char of this.getChars()) {
         if (this.version === 'v3' && prefix.includes(' ') && char === ' ') {
-          continue;
-        }
+            continue;
+          }
         await this.explorePrefix(prefix + char);
       }
     }
@@ -164,7 +202,14 @@ async function main() {
     if (results[version].error) console.log(`- Error: ${results[version].error}`);
   });
 
-  await fs.writeFile('answers.json', JSON.stringify(results, null, 2));
+  await fs.writeFile('answers.json', JSON.stringify({
+    v1_requests: results.v1.requestCount,
+    v2_requests: results.v2.requestCount,
+    v3_requests: results.v3.requestCount,
+    v1_results: results.v1.resultCount,
+    v2_results: results.v2.resultCount,
+    v3_results: results.v3.resultCount
+  }, null, 2));
 }
 
 main().catch(error => {
