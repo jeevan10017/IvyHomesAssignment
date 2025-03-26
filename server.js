@@ -2,7 +2,7 @@ const axios = require('axios');
 const fs = require('fs').promises;
 
 const BASE_URL = 'http://35.200.185.69:8000';
-const VERSIONS = ['v1', 'v2', 'v3'];
+const VERSIONS = ['v1', 'v2', 'v3'];  //change here for particular version you want
 const INITIAL_DELAY = 1000;
 const MAX_RETRY_DELAY = 60000;
 
@@ -113,9 +113,9 @@ class VersionExtractor {
     if (results.length >= this.threshold) {
       console.log(`[${this.version}] EXPANDING: ${prefix}*`);
       for (const char of this.getChars()) {
-        if (this.version === 'v3' && prefix.includes(' ') && char === ' ') {
-            continue;
-          }
+       if (this.version === 'v3' && char === ' ' && prefix.endsWith(' ')) {
+          continue;
+      }
         await this.explorePrefix(prefix + char);
       }
     }
@@ -138,6 +138,8 @@ class VersionExtractor {
     try {
       const initialChars = this.getChars();
       for (const char of initialChars) {
+        if (this.version === 'v3' && char === ' ') 
+          continue;
         await this.explorePrefix(char);
       }
 
@@ -164,8 +166,12 @@ class VersionExtractor {
 }
 
 async function main() {
-  const results = {};
-  
+  const results = {
+    v1: { requestCount: 0, resultCount: 0, error: 'Not processed' },
+    v2: { requestCount: 0, resultCount: 0, error: 'Not processed' },
+    v3: { requestCount: 0, resultCount: 0, error: 'Not processed' },
+  };
+
   for (const version of VERSIONS) {
     console.log(`\n=== Testing ${version} endpoint ===`);
     const extractor = new VersionExtractor(version);
