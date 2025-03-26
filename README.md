@@ -24,8 +24,8 @@ This solution extracts all possible names from an autocomplete API with three ve
 
 | Version | Rate Limit | Threshold | Valid Characters |
 |---------|------------|-----------|-----------------|
-| v1      | 100/min    | 10        | a-z0-9          |
-| v2      | 50/min     | 12        | a-z             |
+| v1      | 100/min    | 10        | a-z             |
+| v2      | 50/min     | 12        | a-z0-9          |
 | v3      | 80/min     | 15        | a-z0-9 +-._ (no consecutive spaces) |
 
 ## Challenges & Solutions
@@ -89,8 +89,8 @@ async explorePrefix(prefix) {
 ```javascript
 getChars() {
   switch(this.version) {
-    case 'v1': return 'abcdefghijklmnopqrstuvwxyz0123456789';
-    case 'v2': return 'abcdefghijklmnopqrstuvwxyz';
+    case 'v1': return 'abcdefghijklmnopqrstuvwxyz';
+    case 'v2': return 'abcdefghijklmnopqrstuvwxyz0123456789';
     case 'v3': return 'abcdefghijklmnopqrstuvwxyz0123456789 +-._';
   }
 }
@@ -102,11 +102,11 @@ getChars() {
 
 | Version | Requests Made | Names Found |
 |---------|--------------|-------------|
-| v1      |     0        | 0           |
-| v2      | 6,182        | 7354        | improved it after handling with Threshold limit
-| v3      |    0         | 0           |
+| v1      |   30,192     |  18,219     |
+| v2      |    3,113     |   7,359     | 
+| v3      |    7,076     |  12,489    |
 
-**:red_circle: Note: Due to time constraints and API server closure at last on Tuesday 11 am (25/03), the implementation could not be fully tested across all versions. Also Improved Constraint at last**
+**:red_circle: Note:IP address used : 35.207.196.198
 
 
 ## Usage
