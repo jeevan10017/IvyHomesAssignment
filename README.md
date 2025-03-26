@@ -88,12 +88,13 @@ async explorePrefix(prefix) {
 
 ```javascript
 getChars() {
-  switch(this.version) {
-    case 'v1': return 'abcdefghijklmnopqrstuvwxyz';
-    case 'v2': return 'abcdefghijklmnopqrstuvwxyz0123456789';
-    case 'v3': return 'abcdefghijklmnopqrstuvwxyz0123456789 +-._';
+    switch (this.version) {
+      case 'v1': return 'abcdefghijklmnopqrstuvwxyz';
+      case 'v2': return '0123456789abcdefghijklmnopqrstuvwxyz';
+      case 'v3': return '+-.0123456789abcdefghijklmnopqrstuvwxyz ';
+      default: return 'abcdefghijklmnopqrstuvwxyz';
+    }
   }
-}
 ```
 
 ## Performance Metrics
@@ -102,9 +103,9 @@ getChars() {
 
 | Version | Requests Made | Names Found |
 |---------|--------------|-------------|
-| v1      |   30,192     |  18,219     |
-| v2      |    3,113     |   7,359     | 
-| v3      |    7,076     |  12,489    |
+| v1      |   30,920     |  18,591     |
+| v2      |    7,454     |  13,730     | 
+| v3      |    6,912     |  12,517     |
 
 **:red_circle: Note: IP address used : 35.207.196.198**
 
