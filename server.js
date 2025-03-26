@@ -1,7 +1,7 @@
 const axios = require('axios');
 const fs = require('fs').promises;
 
-const BASE_URL = 'http://35.200.185.69:8000';
+const BASE_URL = 'http://35.207.196.198:8000';
 const VERSIONS = ['v1', 'v2', 'v3'];  //change here for particular version you want
 const INITIAL_DELAY = 1000;
 const MAX_RETRY_DELAY = 60000;
@@ -43,11 +43,11 @@ class VersionExtractor {
     return response.data.results || [];
   }
 
-  getChars() {
+ getChars() {
     switch (this.version) {
       case 'v1': return 'abcdefghijklmnopqrstuvwxyz';
-      case 'v2': return 'abcdefghijklmnopqrstuvwxyz0123456789';
-      case 'v3': return 'abcdefghijklmnopqrstuvwxyz0123456789 +-._';
+      case 'v2': return '0123456789abcdefghijklmnopqrstuvwxyz';
+      case 'v3': return '+-.0123456789abcdefghijklmnopqrstuvwxyz ';
       default: return 'abcdefghijklmnopqrstuvwxyz';
     }
   }
