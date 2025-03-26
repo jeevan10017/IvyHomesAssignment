@@ -45,8 +45,8 @@ class VersionExtractor {
 
   getChars() {
     switch (this.version) {
-      case 'v1': return 'abcdefghijklmnopqrstuvwxyz0123456789';
-      case 'v2': return 'abcdefghijklmnopqrstuvwxyz';
+      case 'v1': return 'abcdefghijklmnopqrstuvwxyz';
+      case 'v2': return 'abcdefghijklmnopqrstuvwxyz0123456789';
       case 'v3': return 'abcdefghijklmnopqrstuvwxyz0123456789 +-._';
       default: return 'abcdefghijklmnopqrstuvwxyz';
     }
