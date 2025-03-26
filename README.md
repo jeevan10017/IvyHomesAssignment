@@ -106,7 +106,7 @@ getChars() {
 | v2      |    3,113     |   7,359     | 
 | v3      |    7,076     |  12,489    |
 
-**:red_circle: Note:IP address used : 35.207.196.198
+**:red_circle: Note: IP address used : 35.207.196.198**
 
 
 ## Usage
